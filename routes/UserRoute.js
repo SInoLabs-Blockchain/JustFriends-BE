@@ -4,5 +4,6 @@ const router = express.Router();
 
 router.post('/connect-wallet', UserController.connectWallet);
 router.post('/login', UserController.login);
+router.post('/auth-me', UserController.authMe);
 
 module.exports = router;

@@ -45,6 +45,18 @@ class UserService {
     return jwt.sign({ userId, walletAddress }, process.env.SESSION_SECRET, { expiresIn: '1h' });
   }
 
+  static async getUserById(userId) {
+    try {
+      const user = await models.User.findByPk(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+      return user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
 }
 
 module.exports = UserService;

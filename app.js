@@ -1,12 +1,18 @@
 const express = require('express');
 const { Sequelize } = require('sequelize');
 const UserRoute = require('./routes/UserRoute');
+const authMiddleware = require('./middlewares/AuthMiddleware');
 const bodyParser = require('body-parser');
 
 const app = express();
 const sequelize = new Sequelize('postgres://myuser:mypassword@localhost:5432/mydb');
 
+require('dotenv').config();
+
 app.use(bodyParser.json());
+
+app.use(authMiddleware);
+
 app.use('/user', UserRoute);
 
 sequelize.authenticate()
