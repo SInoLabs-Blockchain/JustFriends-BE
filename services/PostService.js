@@ -26,7 +26,29 @@ const PostService = {
     });
 
     return post;
-  }
+  },
+
+  searchPosts: async (searchQuery, page = 1, limit = 10) => {
+    const offset = (page - 1) * limZZit;
+
+    const posts = await Post.findAndCountAll({
+      where: {
+        content: {
+          [Op.iLike]: `%${searchQuery}%`
+        }
+      },
+      limit,
+      offset,
+      order: [['createdAt', 'DESC']]
+    });
+
+    return {
+      total: posts.count,
+      totalPages: Math.ceil(posts.count / limit),
+      currentPage: page,
+      posts: posts.rows
+    };
+  },
 };
 
 module.exports = PostService;

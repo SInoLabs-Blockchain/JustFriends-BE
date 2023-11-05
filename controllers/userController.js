@@ -62,6 +62,18 @@ const UserController = {
       res.status(400).json({ message: error.message });
     }
   },
+
+  searchUsers: async (req, res) => {
+    try {
+      const { searchQuery } = req.query;
+      const page = parseInt(req.query.page, 10) || 1;
+      const results = await UserService.searchUsers(searchQuery, page);
+
+      res.json(results);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
 }
 
 module.exports = UserController;

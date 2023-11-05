@@ -67,6 +67,29 @@ const UserService = {
     await user.update(updateData);
     return user;
   },
+
+  searchUsers: async (searchQuery, page = 1, limit = 10) => {
+    const offset = (page - 1) * limit;
+
+    const users = await User.findAndCountAll({
+      where: {
+        [Op.or]: [
+          { username: { [Op.iLike]: `%${searchQuery}%` } },
+          { walletAddress: { [Op.iLike]: `%${searchQuery}%` } }
+        ]
+      },
+      limit,
+      offset,
+      order: [['username', 'ASC']]
+    });
+
+    return {
+      total: users.count,
+      totalPages: Math.ceil(users.count / limit),
+      currentPage: page,
+      users: users.rows
+    };
+  },
 }
 
 module.exports = UserService;
