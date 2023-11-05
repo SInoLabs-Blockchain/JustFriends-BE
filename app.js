@@ -1,6 +1,7 @@
 const express = require('express');
 const { Sequelize } = require('sequelize');
 const UserRoute = require('./routes/UserRoute');
+const PostRoute = require('./routes/PostRoute');
 const authMiddleware = require('./middlewares/AuthMiddleware');
 const bodyParser = require('body-parser');
 
@@ -14,6 +15,7 @@ app.use(bodyParser.json());
 app.use(authMiddleware);
 
 app.use('/user', UserRoute);
+app.user('/post', PostRoute); 
 
 sequelize.authenticate()
   .then(() => console.log('Database connected.'))

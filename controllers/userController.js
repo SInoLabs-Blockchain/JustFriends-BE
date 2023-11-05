@@ -14,7 +14,7 @@ class UserController {
     }
   }
 
-static async login(req, res) {
+  static async login(req, res) {
     try {
       const { walletAddress, signature } = req.body;
 
