@@ -14,8 +14,8 @@ app.use(bodyParser.json());
 
 app.use(authMiddleware);
 
-app.use('/user', UserRoute);
-app.user('/post', PostRoute); 
+app.use('/api/user', UserRoute);
+app.use('/api/post', PostRoute); 
 
 sequelize.authenticate()
   .then(() => console.log('Database connected.'))

@@ -1,7 +1,7 @@
 const UserService = require('../services/UserService');
 
-class UserController {
-  static async connectWallet(req, res) {
+const UserController = {
+  connectWallet: async(req, res) => {
     try {
       const { walletAddress } = req.body;
       if (!walletAddress) {
@@ -12,9 +12,9 @@ class UserController {
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }
-  }
+  },
 
-  static async login(req, res) {
+  login: async (req, res) => {
     try {
       const { walletAddress, signature } = req.body;
 
@@ -31,9 +31,9 @@ class UserController {
     } catch (error) {
       return res.status(error.message === 'Challenge not found.' ? 404 : 401).send(error.message);
     }
-  }
+  },
 
-  static async authMe (req, res) {
+  authMe: async (req, res) => {
     try {
       // req.user được thiết lập bởi middleware xác thực
       const user = await UserService.getUserById(req.user.id);
@@ -48,7 +48,20 @@ class UserController {
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
     }
-  }
+  },
+
+  updateUser: async (req, res) => {
+    try {
+      const userId = req.user.id; // Lấy ID người dùng từ JWT token sau khi đã xác thực
+      const { avatarUrl, username, coverUrl } = req.body;
+
+      // Cập nhật thông tin người dùng
+      const updatedUser = await UserService.updateUser(userId, { avatarUrl, username, coverUrl });
+      res.json(updatedUser);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
 }
 
 module.exports = UserController;

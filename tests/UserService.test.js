@@ -93,4 +93,48 @@ describe('UserService', () => {
 			expect(models.Challenge.findOne).toHaveBeenCalledWith({ where: { wallet_address: wallet.address } });
     });
   });
+
+ describe('updateUser', () => {
+    it('should update the user with given data', async () => {
+      const userId = 1;
+      const updateData = {
+        avatarUrl: 'http://example.com/avatar.jpg',
+        username: 'updateduser',
+        coverUrl: 'http://example.com/cover.jpg'
+      };
+
+      // Mock the findByPk method to simulate Sequelize behavior
+      User.findByPk.mockResolvedValue({
+        ...updateData,
+        update: jest.fn().mockResolvedValue([1])
+      });
+
+      // Call the updateUser method
+      const result = await UserService.updateUser(userId, updateData);
+
+      // Check if the findByPk was called with the correct userId
+      expect(User.findByPk).toHaveBeenCalledWith(userId);
+
+      // Check if the update method was called with the correct data
+      expect(result.update).toHaveBeenCalledWith(updateData);
+
+      // Check if the result contains the updated data
+      expect(result).toMatchObject(updateData);
+    });
+
+    it('should throw an error if user is not found', async () => {
+      const userId = 2;
+      const updateData = {
+        avatarUrl: 'http://example.com/avatar.jpg',
+        username: 'updateduser',
+        coverUrl: 'http://example.com/cover.jpg'
+      };
+
+      // Mock the findByPk method to return null
+      User.findByPk.mockResolvedValue(null);
+
+      // Expect the updateUser method to throw an error
+      await expect(UserService.updateUser(userId, updateData)).rejects.toThrow('User not found');
+    });
+  });
 });
