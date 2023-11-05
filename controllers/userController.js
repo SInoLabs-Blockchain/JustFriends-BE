@@ -32,6 +32,23 @@ static async login(req, res) {
       return res.status(error.message === 'Challenge not found.' ? 404 : 401).send(error.message);
     }
   }
+
+  static async authMe (req, res) {
+    try {
+      // req.user được thiết lập bởi middleware xác thực
+      const user = await UserService.getUserById(req.user.id);
+
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Trả về thông tin user nhưng loại bỏ thông tin nhạy cảm
+      const userData = user.get();
+      res.json(userData);
+    } catch (error) {
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
 }
 
 module.exports = UserController;
