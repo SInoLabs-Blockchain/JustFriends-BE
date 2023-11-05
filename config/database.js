@@ -5,7 +5,7 @@ const { Sequelize } = require('sequelize');
 // Set up a connection to the PostgreSQL database
 const sequelize = new Sequelize({
   dialect: 'postgres',     // Database type
-  host: 'postgres',        // Database host address (from Docker Compose)
+  host: 'localhost',        // Database host address (from Docker Compose)
   username: 'myuser',      // PostgreSQL username
   password: 'mypassword',  // PostgreSQL password
   database: 'mydb',        // Database name
