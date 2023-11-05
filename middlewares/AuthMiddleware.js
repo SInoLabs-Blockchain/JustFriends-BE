@@ -1,27 +1,32 @@
 const jwt = require('jsonwebtoken');
 
+const publicPaths = ['/posts/free', '/connect-wallet', '/login'];
+
 const authMiddleware = (req, res, next) => {
-  // Bỏ qua xác thực cho các route 'connect-wallet' và 'login'
-  if (req.path === '/connect-wallet' || req.path === '/login') {
+  const token = req.headers.authorization?.split(' ')[1];
+  const isPublicPath = publicPaths.includes(req.path);
+
+  if (!token) {
+    if (!isPublicPath) {
+      return res.status(401).json({ message: 'No token provided' });
+    }
+    // Nếu đây là public path, tiếp tục mà không cần xác thực
     return next();
   }
 
-  // Lấy token từ header
-  const token = req.headers.authorization?.split(' ')[1]; // Bearer TOKEN
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      if (!isPublicPath) {
+        return res.status(401).json({ message: 'Invalid token' });
+      }
+      // Nếu token không hợp lệ nhưng là public path, tiếp tục mà không cần thông tin người dùng
+      return next();
+    }
 
-  // Kiểm tra xem token có tồn tại không
-  if (!token) {
-    return res.status(401).json({ message: 'No token provided.' });
-  }
-
-  // Xác minh token
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Lưu thông tin user vào request để sử dụng ở các route sau
+    // Nếu token hợp lệ, đính kèm thông tin người dùng vào request và tiếp tục
+    req.user = decoded;
     next();
-  } catch (error) {
-    res.status(401).json({ message: 'Invalid token.' });
-  }
+  });
 };
 
 module.exports = authMiddleware;

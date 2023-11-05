@@ -1,7 +1,9 @@
 const { Model, DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-  const User = sequelize.define('User', {
+  class User extends Model{};
+
+  User.init({
     userId: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -25,6 +27,7 @@ module.exports = (sequelize) => {
       allowNull: false
     }
   }, {
+    sequelize,
     tableName: 'users'
   });
 

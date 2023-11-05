@@ -5,5 +5,6 @@ const router = express.Router();
 
 router.post('/post', PostController.createPost);
 router.get('/posts/search', PostController.searchPosts);
+router.get('/posts', PostController.getPosts);
 
 module.exports = router;
