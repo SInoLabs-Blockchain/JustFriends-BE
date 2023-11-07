@@ -1,7 +1,8 @@
-const { Model, DataTypes } = require('sequelize');
+import { Model, DataTypes } from 'sequelize';
 
-module.exports = (sequelize) => {
+export default (sequelize) => {
     class Post extends Model {}
+
     Post.init({
         postId: {
             type: DataTypes.INTEGER,
@@ -37,4 +38,3 @@ module.exports = (sequelize) => {
 
     return Post;
 }
-

@@ -1,5 +1,5 @@
-const { models } = require('../SequelizeInit');
-const crypto = require('crypto');
+import { models } from '../SequelizeInit.js';
+import crypto from 'crypto';
 
 const PostService = {
   createPost: async ({ userId, content, type, preview }) => {
@@ -29,7 +29,7 @@ const PostService = {
   },
 
   searchPosts: async (searchQuery, page = 1, limit = 10) => {
-    const offset = (page - 1) * limZZit;
+    const offset = (page - 1) * limit;
 
     const posts = await models.Post.findAndCountAll({
       where: {
@@ -50,52 +50,32 @@ const PostService = {
     };
   },
 
-  getPostsByType: async (type, userId, page, limit) => {
+  getPosts: async (type, page = 1, limit = 10) => {
     const offset = (page - 1) * limit;
 
-    let attributesCondition = ['postId', 'userId', 'type', 'preview', 'createdAt', 'updatedAt'];
-    let whereCondition = { type };
-    let includeCondition = [
-      {
-        model: User,
-        as: 'user',
-        attributes: ['userId', 'username', 'avatarUrl', 'coverUrl'],
-      }
-    ];
-
-    // Nếu type là 'free' và có userId, chỉ lấy những bài viết chưa xem
-    if (userId) {
-      includeCondition.push({
-        model: PostView,
-        as: 'views',
-        required: false,
-        attributes: [],
-        where: {
-          userId: userId
-        }
-      });
-      whereCondition['$views.postId$'] = { [Op.is]: null };
-    }
-
-    if (type == 'free') {
-      attributesCondition.push('content'); // Thêm 'content' vào danh sách các thuộc tính được trả về
-    }
-
-    return Post.findAll({
-      where: whereCondition,
-      attributes: attributesCondition,
-      include: includeCondition,
+    const posts = await models.Post.findAndCountAll({
+      where: type ? { type } : {},
       limit,
       offset,
-      order: [['createdAt', 'DESC']],
-      subQuery: false
+      order: [['createdAt', 'DESC']]
     });
+
+    return {
+      total: posts.count,
+      totalPages: Math.ceil(posts.count / limit),
+      currentPage: page,
+      posts: posts.rows
+    };
   },
 
-  markPostAsViewed: async (userId, postId) => {
-    // Logic để đánh dấu một bài viết đã được xem
-    return models.PostView.create({ userId, postId });
+  getPostById: async (postId) => {
+    const post = await models.Post.findByPk(postId);
+    if (!post) {
+      throw new Error('Post not found.');
+    }
+
+    return post;
   }
 };
 
-module.exports = PostService;
+export default PostService;

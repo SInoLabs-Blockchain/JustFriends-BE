@@ -1,23 +1,28 @@
-const { Sequelize } = require('sequelize');
-const sequelize = new Sequelize('postgres://myuser:mypassword@localhost:5432/mydb');
+import { Sequelize } from 'sequelize';
+import ChallengeModel from './models/ChallengeModel.js';
+import UserModel from './models/UserModel.js';
+import PostModel from './models/PostModel.js';
+import PostViewModel from './models/PostViewModel.js';
 
-const ChallengeModel = require('./models/ChallengeModel')(sequelize);
-const UserModel = require('./models/UserModel')(sequelize);
-const PostModel = require('./models/PostModel')(sequelize);
-const PostViewModel = require('./models/PostViewModel')(sequelize);
+const sequelize = new Sequelize(process.env.DATABASE_URL);
 
-// Thiết lập mối quan hệ
-UserModel.hasMany(PostModel, { foreignKey: 'userId', as: 'posts' });
-PostModel.belongsTo(UserModel, { foreignKey: 'userId', as: 'user' });
+const Challenge = ChallengeModel(sequelize);
+const User = UserModel(sequelize);
+const Post = PostModel(sequelize);
+const PostView = PostViewModel(sequelize);
 
-PostModel.hasMany(PostViewModel, { foreignKey: 'postId', as: 'views' });
-PostViewModel.belongsTo(PostModel, { foreignKey: 'postId', as: 'post' });
+// Set up relationships
+User.hasMany(Post, { foreignKey: 'userId', as: 'posts' });
+Post.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+Post.hasMany(PostView, { foreignKey: 'postId', as: 'views' });
+PostView.belongsTo(Post, { foreignKey: 'postId', as: 'post' });
 
 const models = {
-  Challenge: ChallengeModel,
-  User: UserModel,
-  Post: PostModel,
-  PostView: PostViewModel,
+  Challenge,
+  User,
+  Post,
+  PostView,
   // ... any other models
 };
 
@@ -32,7 +37,4 @@ sequelize.sync({ force: false }) // Set to true to update the table on every ini
     console.log('Database & tables created!');
   });
 
-module.exports = {
-  sequelize,
-  models,
-};
+export { sequelize, models };

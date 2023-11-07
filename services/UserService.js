@@ -1,24 +1,21 @@
-const jwt = require('jsonwebtoken');
-const crypto = require('crypto')
-const { recoverPersonalSignature } = require('eth-sig-util');
-const { models } = require('../SequelizeInit');
-require('dotenv').config();
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import { recoverPersonalSignature } from 'eth-sig-util';
+import { models } from '../SequelizeInit.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const UserService = {
   createChallenge: async (walletAddress) => {
     try {
-      // Tìm challenge hiện tại dựa trên walletAddress
       let challenge = await models.Challenge.findOne({ where: { wallet_address: walletAddress } });
-
-      // Tạo một challenge text mới
       const newChallengeText = crypto.randomBytes(32).toString('hex');
 
       if (challenge) {
-        // Nếu challenge đã tồn tại, cập nhật challengeText mới
         challenge.challengeText = newChallengeText;
         await challenge.save();
       } else {
-        // Nếu không, tạo một challenge mới
         challenge = await models.Challenge.create({
           wallet_address: walletAddress,
           challenge_text: newChallengeText
@@ -81,7 +78,7 @@ const UserService = {
       throw new Error('User not found');
     }
 
-    // Cập nhật thông tin người dùng
+    // Update user information
     await user.update(updateData);
     return user;
   },
@@ -89,7 +86,7 @@ const UserService = {
   searchUsers: async (searchQuery, page = 1, limit = 10) => {
     const offset = (page - 1) * limit;
 
-    const users = await User.findAndCountAll({
+    const users = await models.User.findAndCountAll({
       where: {
         [Op.or]: [
           { username: { [Op.iLike]: `%${searchQuery}%` } },
@@ -110,4 +107,4 @@ const UserService = {
   },
 }
 
-module.exports = UserService;
+export default UserService;

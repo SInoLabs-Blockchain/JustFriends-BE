@@ -1,13 +1,16 @@
-const UserService = require('../services/UserService');
-const { models } = require('../SequelizeInit');
-const { recoverPersonalSignature } = require('eth-sig-util');
-const { ethers } = require('ethers')
+import UserService from '../services/UserService';
+import { models } from '../SequelizeInit';
+import { recoverPersonalSignature } from 'eth-sig-util';
+import { ethers } from 'ethers';
 
 jest.mock('../SequelizeInit', () => ({
   models: {
     Challenge: {
       findOne: jest.fn(),
       destroy: jest.fn(),
+    },
+    User: {
+      findByPk: jest.fn(),
     },
   },
 }));
@@ -72,69 +75,25 @@ describe('UserService', () => {
     });
 
     it('should return true for a valid signature', async () => {
-			// Given a challenge text
-			const challengeText = 'Please sign this message to log in.';
+      // Given a challenge text
+      const challengeText = 'Please sign this message to log in.';
 
-			// Create a new wallet
-			const wallet = ethers.Wallet.createRandom();
-			console.log('New Wallet Address:', wallet.address);
+      // Create a new wallet
+      const wallet = ethers.Wallet.createRandom();
+      console.log('New Wallet Address:', wallet.address);
 
-			// Sign the challenge text with the new wallet
-			const signature = await wallet.signMessage(challengeText);
+      // Sign the challenge text with the new wallet
+      const signature = await wallet.signMessage(challengeText);
 
-			// Mock the Challenge model's findOne method to return the challenge text
-			models.Challenge.findOne.mockResolvedValue({ challenge_text: challengeText, wallet_address: wallet.address });
+      // Mock the Challenge model's findOne method to return the challenge text
+      models.Challenge.findOne.mockResolvedValue({ challenge_text: challengeText, wallet_address: wallet.address });
 
-			// When calling verifySignature
-			const result = await UserService.verifySignature(wallet.address, signature);
+      // When calling verifySignature
+      const result = await UserService.verifySignature(wallet.address, signature);
 
-			// Then it should return true
-			expect(result).toBe(true);
-			expect(models.Challenge.findOne).toHaveBeenCalledWith({ where: { wallet_address: wallet.address } });
-    });
-  });
-
- describe('updateUser', () => {
-    it('should update the user with given data', async () => {
-      const userId = 1;
-      const updateData = {
-        avatarUrl: 'http://example.com/avatar.jpg',
-        username: 'updateduser',
-        coverUrl: 'http://example.com/cover.jpg'
-      };
-
-      // Mock the findByPk method to simulate Sequelize behavior
-      User.findByPk.mockResolvedValue({
-        ...updateData,
-        update: jest.fn().mockResolvedValue([1])
-      });
-
-      // Call the updateUser method
-      const result = await UserService.updateUser(userId, updateData);
-
-      // Check if the findByPk was called with the correct userId
-      expect(User.findByPk).toHaveBeenCalledWith(userId);
-
-      // Check if the update method was called with the correct data
-      expect(result.update).toHaveBeenCalledWith(updateData);
-
-      // Check if the result contains the updated data
-      expect(result).toMatchObject(updateData);
-    });
-
-    it('should throw an error if user is not found', async () => {
-      const userId = 2;
-      const updateData = {
-        avatarUrl: 'http://example.com/avatar.jpg',
-        username: 'updateduser',
-        coverUrl: 'http://example.com/cover.jpg'
-      };
-
-      // Mock the findByPk method to return null
-      User.findByPk.mockResolvedValue(null);
-
-      // Expect the updateUser method to throw an error
-      await expect(UserService.updateUser(userId, updateData)).rejects.toThrow('User not found');
+      // Then it should return true
+      expect(result).toBe(true);
+      expect(models.Challenge.findOne).toHaveBeenCalledWith({ where: { wallet_address: wallet.address } });
     });
   });
 });

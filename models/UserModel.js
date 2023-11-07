@@ -1,7 +1,7 @@
-const { Model, DataTypes } = require('sequelize');
+import { Model, DataTypes } from 'sequelize';
 
-module.exports = (sequelize) => {
-  class User extends Model{};
+export default (sequelize) => {
+  class User extends Model {}
 
   User.init({
     userId: {
@@ -38,4 +38,4 @@ module.exports = (sequelize) => {
   });
 
   return User;
-};
+}

@@ -1,5 +1,5 @@
-const express = require('express');
-const PostController = require('../controllers/PostController');
+import express from 'express';
+import PostController from '../controllers/PostController.js';
 const router = express.Router();
 
 /**
@@ -107,8 +107,8 @@ router.get('/posts/search', PostController.searchPosts);
  *       200:
  *         description: A list of posts.
  *       400:
- *         description: Bad request if the parameters are not provided correctly.
+ *         description: Bad request if the query parameters are not valid.
  */
 router.get('/posts', PostController.getPosts);
 
-module.exports = router;
+export default router;

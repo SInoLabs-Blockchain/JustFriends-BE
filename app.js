@@ -1,27 +1,28 @@
-const express = require('express');
-const { Sequelize } = require('sequelize');
-const UserRoute = require('./routes/UserRoute');
-const PostRoute = require('./routes/PostRoute');
-const authMiddleware = require('./middlewares/AuthMiddleware');
-const bodyParser = require('body-parser');
-const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./swagger');
-const cors = require('cors');
+import express from 'express';
+import { Sequelize } from 'sequelize';
+import UserRoute from './routes/UserRoute.js';
+import PostRoute from './routes/PostRoute.js';
+import authMiddleware from './middlewares/AuthMiddleware.js';
+import bodyParser from 'body-parser';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './swagger.js';
+import cors from 'cors';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
-const sequelize = new Sequelize('postgres://myuser:mypassword@localhost:5432/mydb');
+const sequelize = new Sequelize(process.env.DATABASE_URL);
 
-require('dotenv').config();
-
-// Sử dụng CORS cho tất cả các route
+// Use CORS for all routes
 app.use(cors());
 
-// Hoặc bạn có thể cấu hình CORS một cách cụ thể
+// Or you can configure CORS specifically
 app.use(cors({
-  origin: '*', // chỉ cho phép domain này truy cập
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // các phương thức được cho phép
-  credentials: true, // cho phép cookie
-  optionsSuccessStatus: 204 // một số trình duyệt cũ chọn 204 làm giá trị mặc định cho successful response
+  origin: '*', // only allow this domain to access
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE', // allowed methods
+  credentials: true, // allow cookies
+  optionsSuccessStatus: 204 // some older browsers choose 204 as the default value for successful responses
 }));
 
 app.use(bodyParser.json());

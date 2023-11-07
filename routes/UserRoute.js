@@ -1,5 +1,5 @@
-const express = require('express');
-const UserController = require('../controllers/UserController');
+import express from 'express';
+import UserController from '../controllers/UserController.js';
 const router = express.Router();
 
 /**
@@ -141,5 +141,4 @@ router.put('/user', UserController.updateUser);
  */
 router.get('/users/search', UserController.searchUsers);
 
-module.exports = router;
-
+export default router;

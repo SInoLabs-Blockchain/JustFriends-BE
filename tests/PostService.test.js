@@ -1,6 +1,6 @@
-const { PostService } = require('../services/PostService');
-const { Post } = require('../SequelizeInit');
-const crypto = require('crypto');
+import { PostService } from '../services/PostService';
+import { Post } from '../SequelizeInit';
+import crypto from 'crypto';
 
 // Mock the Post model
 jest.mock('../models', () => ({

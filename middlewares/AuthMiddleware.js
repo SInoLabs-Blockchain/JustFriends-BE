@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 const publicPaths = ['/api/posts/free', '/api/connect-wallet', '/api/login', '/api-docs'];
 
@@ -10,7 +10,7 @@ const authMiddleware = (req, res, next) => {
     if (!isPublicPath) {
       return res.status(401).json({ message: 'No token provided' });
     }
-    // Nếu đây là public path, tiếp tục mà không cần xác thực
+    // If this is a public path, continue without authentication
     return next();
   }
 
@@ -19,14 +19,14 @@ const authMiddleware = (req, res, next) => {
       if (!isPublicPath) {
         return res.status(401).json({ message: 'Invalid token' });
       }
-      // Nếu token không hợp lệ nhưng là public path, tiếp tục mà không cần thông tin người dùng
+      // If the token is invalid but it's a public path, continue without user information
       return next();
     }
 
-    // Nếu token hợp lệ, đính kèm thông tin người dùng vào request và tiếp tục
+    // If the token is valid, attach user information to the request and continue
     req.user = decoded;
     next();
   });
 };
 
-module.exports = authMiddleware;
+export default authMiddleware;
