@@ -1,17 +1,35 @@
-const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto')
 const { recoverPersonalSignature } = require('eth-sig-util');
 const { models } = require('../SequelizeInit');
 require('dotenv').config();
 
 const UserService = {
   createChallenge: async (walletAddress) => {
-    const challengeText = uuidv4(); // Using UUID for simplicity as a random challenge
-    const challenge = await models.Challenge.create({
-      wallet_address: walletAddress,
-      challenge_text: challengeText,
-    });
-    return challenge;
+    try {
+      // Tìm challenge hiện tại dựa trên walletAddress
+      let challenge = await models.Challenge.findOne({ where: { wallet_address: walletAddress } });
+
+      // Tạo một challenge text mới
+      const newChallengeText = crypto.randomBytes(32).toString('hex');
+
+      if (challenge) {
+        // Nếu challenge đã tồn tại, cập nhật challengeText mới
+        challenge.challengeText = newChallengeText;
+        await challenge.save();
+      } else {
+        // Nếu không, tạo một challenge mới
+        challenge = await models.Challenge.create({
+          wallet_address: walletAddress,
+          challenge_text: newChallengeText
+        });
+      }
+
+      return challenge;
+    } catch (error) {
+      console.error('Error in createChallenge:', error);
+      throw error;
+    }
   },
 
   verifySignature: async (walletAddress, signature) => {
