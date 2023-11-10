@@ -3,8 +3,11 @@ import ChallengeModel from './models/ChallengeModel.js';
 import UserModel from './models/UserModel.js';
 import PostModel from './models/PostModel.js';
 import PostViewModel from './models/PostViewModel.js';
+import dotenv from 'dotenv';
 
-const sequelize = new Sequelize(process.env.DATABASE_URL);
+dotenv.config();
+
+const sequelize = new Sequelize(process.env.DATABASE_URL, { dialect: 'postgres' });
 
 const Challenge = ChallengeModel(sequelize);
 const User = UserModel(sequelize);

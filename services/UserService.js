@@ -3,6 +3,8 @@ import crypto from 'crypto';
 import { recoverPersonalSignature } from 'eth-sig-util';
 import { models } from '../SequelizeInit.js';
 import dotenv from 'dotenv';
+import randomNumber from 'random-number';
+import { hri } from 'human-readable-ids';
 
 dotenv.config();
 
@@ -48,10 +50,12 @@ const UserService = {
     return true;
   },
 
+
   findOrCreateUser: async (walletAddress) => {
     let user = await models.User.findOne({ where: { walletAddress } });
     if (!user) {
-      user = await models.User.create({ walletAddress });
+      const username = hri.random();
+      user = await models.User.create({ walletAddress, username });
     }
     return user;
   },

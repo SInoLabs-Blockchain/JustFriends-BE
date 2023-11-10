@@ -28,13 +28,16 @@ export default (sequelize) => {
     }
   }, {
     sequelize,
-    tableName: 'users'
-  });
-
-  User.beforeCreate((user, _) => {
-    if (!user.username) {
-      user.username = `${user.walletAddress}@${user.userId}`;
+    tableName: 'users',
+    hooks: {
+      beforeCreate: (user) => {
+        console.log("user", user);
+        if (!user.username) {
+          user.username = `${user.walletAddress}@${user.userId}`;
+        }
+      }
     }
+
   });
 
   return User;
