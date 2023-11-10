@@ -19,8 +19,8 @@ const UserController = {
       const { walletAddress, signature } = req.body;
       await UserService.verifySignature(walletAddress, signature);
       const user = await UserService.findOrCreateUser(walletAddress);
-      const sessionKey = UserService.generateJWT(user.userId, walletAddress);
-      return res.json({ sessionKey });
+      const accessToken = UserService.generateJWT(user.userId, walletAddress);
+      return res.json({ accessToken: accessToken });
     } catch (error) {
       return res.status(error.message === 'Challenge not found.' ? 404 : 401).send(error.message);
     }
@@ -28,7 +28,7 @@ const UserController = {
 
   authMe: async (req, res) => {
     try {
-      const user = await UserService.getUserById(req.user.id);
+      const user = await UserService.getUserById(req.user.userId);
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }

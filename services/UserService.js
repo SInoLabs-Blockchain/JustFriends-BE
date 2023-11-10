@@ -61,7 +61,7 @@ const UserService = {
   },
 
   generateJWT: (userId, walletAddress) => {
-    return jwt.sign({ userId, walletAddress }, process.env.SESSION_SECRET, { expiresIn: '1h' });
+    return jwt.sign({ userId, walletAddress }, process.env.JWT_SECRET, { expiresIn: '10h' });
   },
 
   getUserById: async (userId) => {
