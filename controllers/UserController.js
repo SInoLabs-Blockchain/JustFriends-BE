@@ -41,7 +41,7 @@ const UserController = {
 
   updateUser: async (req, res) => {
     try {
-      const userId = req.user.id;
+      const userId = req.user.userId;
       const { avatarUrl, username, coverUrl } = req.body;
       const updatedUser = await UserService.updateUser(userId, { avatarUrl, username, coverUrl });
       res.json(updatedUser);

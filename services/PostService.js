@@ -57,7 +57,7 @@ const PostService = {
     let whereCondition = { type };
     let includeCondition = [
       {
-        model: User,
+        model: models.User,
         as: 'user',
         attributes: ['userId', 'username', 'avatarUrl', 'coverUrl'],
       }
@@ -66,7 +66,7 @@ const PostService = {
     // Nếu type là 'free' và có userId, chỉ lấy những bài viết chưa xem
     if (userId) {
       includeCondition.push({
-        model: PostView,
+        model: models.PostView,
         as: 'views',
         required: false,
         attributes: [],
@@ -81,7 +81,7 @@ const PostService = {
       attributesCondition.push('content'); // Thêm 'content' vào danh sách các thuộc tính được trả về
     }
 
-    return Post.findAll({
+    return models.Post.findAll({
       where: whereCondition,
       attributes: attributesCondition,
       include: includeCondition,

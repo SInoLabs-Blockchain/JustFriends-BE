@@ -39,48 +39,6 @@ const PostController = {
     }
   },
 
-  getPostsByType: async (type, userId, page, limit) => {
-    const offset = (page - 1) * limit;
-
-    let attributesCondition = ['postId', 'userId', 'type', 'preview', 'createdAt', 'updatedAt'];
-    let whereCondition = { type };
-    let includeCondition = [
-      {
-        model: User,
-        as: 'user',
-        attributes: ['userId', 'username', 'avatarUrl', 'coverUrl'],
-      }
-    ];
-
-    // Nếu type là 'free' và có userId, chỉ lấy những bài viết chưa xem
-    if (userId) {
-      includeCondition.push({
-        model: PostView,
-        as: 'views',
-        required: false,
-        attributes: [],
-        where: {
-          userId: userId
-        }
-      });
-      whereCondition['$views.postId$'] = { [Op.is]: null };
-    }
-
-    if (type == 'free') {
-      attributesCondition.push('content'); // Thêm 'content' vào danh sách các thuộc tính được trả về
-    }
-
-    return Post.findAll({
-      where: whereCondition,
-      attributes: attributesCondition,
-      include: includeCondition,
-      limit,
-      offset,
-      order: [['createdAt', 'DESC']],
-      subQuery: false
-    });
-  },
-
   markPostAsViewed: async (req, res) => {
     try {
       const { postId } = req.body;
