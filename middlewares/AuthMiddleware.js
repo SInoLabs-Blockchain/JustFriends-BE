@@ -1,12 +1,15 @@
 import jwt from 'jsonwebtoken';
 
-const publicPaths = ['/api/posts/free', '/api/connect-wallet', '/api/login', '/api-docs'];
+const publicPaths = ['/posts/free', '/api/connect-wallet', '/api/login', '/api-docs', '/api/posts', '/api/posts/owned'];
 
 const authMiddleware = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   const isPublicPath = publicPaths.includes(req.path);
 
   if (!token) {
+    console.log('path', isPublicPath)
+    console.log('req', req.path)
+    console.log('publicPaths', publicPaths)
     if (!isPublicPath) {
       return res.status(401).json({ message: 'No token provided' });
     }

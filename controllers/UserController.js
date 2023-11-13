@@ -2,6 +2,7 @@ import UserService from '../services/UserService.js';
 
 const UserController = {
   connectWallet: async(req, res) => {
+    console.log('req.body', req.body)
     try {
       const { walletAddress } = req.body;
       if (!walletAddress) {
@@ -56,6 +57,19 @@ const UserController = {
       const page = parseInt(req.query.page, 10) || 1;
       const results = await UserService.searchUsers(searchQuery, page);
       res.json(results);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+
+  getUserById: async (req, res) => {
+    try {
+      const user = await UserService.getUserById(req.user.userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      const userData = user.get();
+      res.json(userData);
     } catch (error) {
       res.status(400).json({ message: error.message });
     }

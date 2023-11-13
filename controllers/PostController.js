@@ -25,13 +25,12 @@ const PostController = {
   getPosts: async (req, res) => {
     const { type, page = 1, limit = 10 } = req.query;
     const { userId } = req.user || {};
-
     if (!type || !['paid', 'free'].includes(type)) {
       return res.status(400).json({ message: 'Invalid type parameter' });
     }
 
     try {
-      const posts = await PostService.getPostsByType(type, userId, Number(page), Number(limit));
+      const posts = await PostService.getPosts(type, userId, Number(page), Number(limit));
       res.json(posts);
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -52,7 +51,52 @@ const PostController = {
     } catch (error) {
       res.status(500).json({ message: 'Internal server error' });
     }
-  }
+  },
+
+  getPostsOwned: async (req, res) => {
+    const { page = 1, limit = 10 } = req.query;
+    const { userId } = req.user || {};
+    try {
+      const posts = await PostService.getPostsOwned(userId, Number(page), Number(limit));
+      res.json(posts);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+  getPostsNew: async (req, res) => {
+    const { type, page = 1, limit = 10 } = req.query;
+    var userId;
+    if (!type || !['paid', 'free'].includes(type)) {
+      return res.status(400).json({ message: 'Invalid type parameter' });
+    }
+    if(type = 'paid'){
+       userId = req.user;
+    }
+    try {
+      const posts = await PostService.getPosts(type, Number(page), Number(limit));
+      res.json(posts);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+  getPostsById: async (req, res) => {
+    var userId;
+    if (!type || !['paid', 'free'].includes(type)) {
+      return res.status(400).json({ message: 'Invalid type parameter' });
+    }
+    if(type = 'paid'){
+       userId = req.user;
+    }
+    try {
+      const posts = await PostService.getPostById(req.postId);
+      res.json(posts);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+
 };
 
 export default PostController;

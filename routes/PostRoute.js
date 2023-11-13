@@ -111,4 +111,58 @@ router.get('/posts/search', PostController.searchPosts);
  */
 router.get('/posts', PostController.getPosts);
 
+/**
+ * @swagger
+ * /posts:
+ *   get:
+ *     tags: [Posts]
+ *     summary: Get user's post
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination.
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of results per page.
+ *     responses:
+ *       200:
+ *         description: A list of posts.
+ *       400:
+ *         description: Bad request if the query parameters are not valid.
+ */
+ router.get('/posts/owned', PostController.getPostsOwned);
+
+ /**
+ * @swagger
+ * /posts:
+ *   get:
+ *     tags: [Posts]
+ *     summary: Get user's post
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination.
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of results per page.
+ *     responses:
+ *       200:
+ *         description: A list of posts.
+ *       400:
+ *         description: Bad request if the query parameters are not valid.
+ */
+  router.get('/posts/new', PostController.getPostsNew);
+
 export default router;

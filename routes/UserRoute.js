@@ -141,4 +141,24 @@ router.put('/user', UserController.updateUser);
  */
 router.get('/users/search', UserController.searchUsers);
 
+/**
+ * @swagger
+ * /user/id:
+ *   get:
+ *     tags: [User]
+ *     summary: get user by id
+ *     parameters:
+ *      - in: query
+ *         name: userId
+ *         schema:
+ *           type: integer
+ *         description: id of user.
+ *     responses:
+ *       200:
+ *         description: user detail.
+ *       400:
+ *         description: Bad request if the user id query is not provided.
+ */
+ router.get('/users/id', UserController.searchUsers);
+
 export default router;

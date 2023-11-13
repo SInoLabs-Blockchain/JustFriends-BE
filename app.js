@@ -32,7 +32,8 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(authMiddleware);
 
-app.use('/api', UserRoute, PostRoute);
+app.use('/api', UserRoute);
+app.use('/api', PostRoute);
 
 sequelize.authenticate()
   .then(() => console.log('Database connected.'))

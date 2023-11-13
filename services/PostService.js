@@ -75,7 +75,25 @@ const PostService = {
     }
 
     return post;
-  }
+  },
+
+  getPostsOwned: async (userId, page = 1, limit = 10) => {
+    const offset = (page - 1) * limit;
+
+    const posts = await models.Post.findAndCountAll({
+      where: userId ? { userId } : {},
+      limit,
+      offset,
+      order: [['createdAt', 'DESC']]
+    });
+
+    return {
+      total: posts.count,
+      totalPages: Math.ceil(posts.count / limit),
+      currentPage: page,
+      posts: posts.rows
+    };
+  },
 };
 
 export default PostService;
