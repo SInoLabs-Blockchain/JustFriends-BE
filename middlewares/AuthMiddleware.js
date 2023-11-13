@@ -1,6 +1,10 @@
 import jwt from 'jsonwebtoken';
 
-const publicPaths = ['/api/posts/free', '/api/connect-wallet', '/api/login', '/api-docs'];
+const publicPaths = ['/api/posts',
+  '/api/connect-wallet', 
+  '/api/login',
+  '/api/users/search',
+  '/api-docs'];
 
 const authMiddleware = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];

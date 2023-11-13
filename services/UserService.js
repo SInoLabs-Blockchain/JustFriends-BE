@@ -5,6 +5,8 @@ import { models } from '../SequelizeInit.js';
 import dotenv from 'dotenv';
 import randomNumber from 'random-number';
 import { hri } from 'human-readable-ids';
+import { Op } from 'sequelize';
+import sequelize from 'sequelize';
 
 dotenv.config();
 
@@ -93,14 +95,16 @@ const UserService = {
     const users = await models.User.findAndCountAll({
       where: {
         [Op.or]: [
-          { username: { [Op.iLike]: `%${searchQuery}%` } },
-          { walletAddress: { [Op.iLike]: `%${searchQuery}%` } }
+          sequelize.where(sequelize.fn('lower', sequelize.col('username')), { [Op.like]: `%${searchQuery}%` }),
+          sequelize.where(sequelize.fn('lower', sequelize.col('walletAddress')), { [Op.like]: `%${searchQuery}%` })
         ]
       },
       limit,
       offset,
       order: [['username', 'ASC']]
     });
+
+    console.log("users", users);
 
     return {
       total: users.count,

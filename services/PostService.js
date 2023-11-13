@@ -50,22 +50,51 @@ const PostService = {
     };
   },
 
-  getPosts: async (type, page = 1, limit = 10) => {
+  getPostsByType: async (type, userId, page, limit) => {
     const offset = (page - 1) * limit;
 
-    const posts = await models.Post.findAndCountAll({
-      where: type ? { type } : {},
+    let attributesCondition = ['postId', 'userId', 'type', 'preview', 'createdAt', 'updatedAt'];
+    let whereCondition = { type };
+    let includeCondition = [
+      {
+        model: User,
+        as: 'user',
+        attributes: ['userId', 'username', 'avatarUrl', 'coverUrl'],
+      }
+    ];
+
+    // Nếu type là 'free' và có userId, chỉ lấy những bài viết chưa xem
+    if (userId) {
+      includeCondition.push({
+        model: PostView,
+        as: 'views',
+        required: false,
+        attributes: [],
+        where: {
+          userId: userId
+        }
+      });
+      whereCondition['$views.postId$'] = { [Op.is]: null };
+    }
+
+    if (type == 'free') {
+      attributesCondition.push('content'); // Thêm 'content' vào danh sách các thuộc tính được trả về
+    }
+
+    return Post.findAll({
+      where: whereCondition,
+      attributes: attributesCondition,
+      include: includeCondition,
       limit,
       offset,
-      order: [['createdAt', 'DESC']]
+      order: [['createdAt', 'DESC']],
+      subQuery: false
     });
+  },
 
-    return {
-      total: posts.count,
-      totalPages: Math.ceil(posts.count / limit),
-      currentPage: page,
-      posts: posts.rows
-    };
+  markPostAsViewed: async (userId, postId) => {
+    // Logic để đánh dấu một bài viết đã được xem
+    return models.PostView.create({ userId, postId });
   },
 
   getPostById: async (postId) => {
