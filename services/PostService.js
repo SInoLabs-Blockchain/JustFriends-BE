@@ -1,5 +1,6 @@
 import { models } from '../SequelizeInit.js';
 import crypto from 'crypto';
+import { GraphQLClient } from 'graphql-request';
 
 const PostService = {
   createPost: async ({ userId, content, type, preview }) => {
@@ -7,7 +8,9 @@ const PostService = {
       throw new Error('Content size exceeds the limit of 1000 characters.');
     }
 
-    const contentHash = crypto.createHash('sha256').update(content).digest('hex');
+    const timestamp = Date.now();
+    const contentHash = crypto.createHash('sha256').update(userId + timestamp + content).digest('hex');
+    
     if (!preview) {
       preview = content.substring(0, Math.min(content.length, Math.ceil(content.length / 10)));
     }
@@ -27,7 +30,6 @@ const PostService = {
 
     return post;
   },
-
   searchPosts: async (searchQuery, page = 1, limit = 10) => {
     const offset = (page - 1) * limit;
 
@@ -104,7 +106,45 @@ const PostService = {
     }
 
     return post;
-  }
+  },
+
+  getPostsByContentHashes: async (contentHashes, user) => {
+    const posts = await models.Post.findAll({
+      where: {
+        contentHash: contentHashes
+      }
+    });
+
+    if (!user) {
+      return posts.map(post => {
+        if (post.type === 'paid') {
+          return { ...post.dataValues, content: null };
+        }
+        return post;
+      });
+    }
+
+    const client = new GraphQLClient(process.env.GRAPHQL_CLIENT);
+    
+    const contentHashesString = contentHashes.map(hash => `"${hash}"`).join(', ');
+
+    const query = `
+      {
+        userPostEntities(where: { account: "${user.walletAddress}", content_in: [${contentHashesString}] }) {
+          content
+        }
+      }
+    `;
+    const response = await client.request(query);
+    const validContentHashes = new Set(response.userPostEntities.map(entity => entity.content));
+    return posts.map(post => {
+      if (post.type === 'paid' && post.userId !== user.userId && !validContentHashes.has(post.contentHash)) {
+        return { ...post.dataValues, content: null };
+      }
+      return post;
+    });
+  },
+
 };
 
 export default PostService;

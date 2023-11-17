@@ -3,10 +3,15 @@ import crypto from 'crypto';
 import { recoverPersonalSignature } from 'eth-sig-util';
 import { models } from '../SequelizeInit.js';
 import dotenv from 'dotenv';
-import randomNumber from 'random-number';
 import { hri } from 'human-readable-ids';
 import { Op } from 'sequelize';
 import sequelize from 'sequelize';
+import Web3 from 'web3';
+import fs from 'fs';
+import { promisify } from 'util';
+
+const readFile = promisify(fs.readFile);
+const EIP4337Module = JSON.parse(await readFile(new URL('../resources/EIP4337Module.json', import.meta.url)));
 
 dotenv.config();
 
@@ -45,7 +50,19 @@ const UserService = {
     });
 
     if (recoveredAddress.toLowerCase() !== walletAddress.toLowerCase()) {
-      throw new Error('Signature verification failed.');
+      const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+      await sleep(5000);
+      const web3 = new Web3(process.env.RPC);
+      const code = await web3.eth.getCode(walletAddress, "latest");
+      if (code !== '0x') {
+        const contract = new web3.eth.Contract(EIP4337Module.abi, walletAddress); // Empty ABI as we don't need to interact with any specific contract methods
+        const ownerAddress = await contract.methods.owner().call();
+        if (recoveredAddress.toLowerCase() !== ownerAddress.toLowerCase()) {
+          throw new Error('Signature verification failed.');
+        }
+      } else {
+        throw new Error('Signature verification failed.');
+      }
     }
 
     await models.Challenge.destroy({ where: { wallet_address: walletAddress } });

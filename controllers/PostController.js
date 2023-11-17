@@ -24,15 +24,23 @@ const PostController = {
   },
 
   getPosts: async (req, res) => {
-    const { type, page = 1, limit = 10 } = req.query;
-    const { userId } = req.user || {};
+    let contentHashes = req.body.contentHashes;
 
-    if (!type || !['paid', 'free'].includes(type)) {
-      return res.status(400).json({ message: 'Invalid type parameter' });
+    if (!Array.isArray(contentHashes) || contentHashes.length > 20) {
+      return res.status(400).json({ message: 'Invalid contentHashes parameter' });
+    }
+  
+    // Check if all elements are hexadecimal strings
+    const isHex = /^0x[0-9a-fA-F]+$/;
+    if (!contentHashes.every(hash => isHex.test(hash))) {
+      return res.status(400).json({ message: 'Invalid contentHashes parameter: all elements must be hexadecimal strings' });
     }
 
+    // Transform contentHashes: convert to lowercase and remove '0x' prefix
+    contentHashes = contentHashes.map(hash => hash.toLowerCase().replace(/^0x/, ''));
+
     try {
-      const posts = await PostService.getPostsByType(type, userId, Number(page), Number(limit));
+      const posts = await PostService.getPostsByContentHashes(contentHashes, req.user);
       res.json(posts);
     } catch (error) {
       res.status(500).json({ message: error.message });

@@ -77,38 +77,6 @@ router.post('/post', PostController.createPost);
  */
 router.get('/posts/search', PostController.searchPosts);
 
-/**
- * @swagger
- * /posts:
- *   get:
- *     tags: [Posts]
- *     summary: Get a list of posts
- *     parameters:
- *       - in: query
- *         name: type
- *         schema:
- *           type: string
- *           enum: [paid, free]
- *         required: false
- *         description: The type of posts to retrieve.
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Page number for pagination.
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *         description: Number of results per page.
- *     responses:
- *       200:
- *         description: A list of posts.
- *       400:
- *         description: Bad request if the query parameters are not valid.
- */
-router.get('/posts', PostController.getPosts);
+router.post('/posts', PostController.getPosts);
 
 export default router;

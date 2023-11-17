@@ -1,5 +1,5 @@
 # Sử dụng một hình ảnh Node.js chính thức làm cơ sở
-FROM node:14
+FROM node:16
 
 # Đặt thư mục làm thư mục làm việc mặc định trong container
 WORKDIR /app
