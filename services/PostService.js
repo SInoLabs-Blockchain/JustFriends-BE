@@ -112,7 +112,12 @@ const PostService = {
     const posts = await models.Post.findAll({
       where: {
         contentHash: contentHashes
-      }
+      },
+      include: [{
+        model: models.User,
+        as: 'user',
+        attributes: ['walletAddress', 'avatarUrl', 'coverUrl', 'username'] // replace with the actual user attributes you want
+      }]
     });
 
     if (!user) {
