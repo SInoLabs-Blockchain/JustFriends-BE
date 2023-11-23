@@ -141,4 +141,6 @@ router.put('/user', UserController.updateUser);
  */
 router.get('/users/search', UserController.searchUsers);
 
+router.post('/users', UserController.getUsersByWalletAddresses);
+
 export default router;

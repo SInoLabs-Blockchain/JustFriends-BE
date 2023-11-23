@@ -4,11 +4,11 @@ import { recoverPersonalSignature } from 'eth-sig-util';
 import { models } from '../SequelizeInit.js';
 import dotenv from 'dotenv';
 import { hri } from 'human-readable-ids';
-import { Op } from 'sequelize';
 import sequelize from 'sequelize';
 import Web3 from 'web3';
 import fs from 'fs';
 import { promisify } from 'util';
+import { Op, fn, col } from 'sequelize';
 
 const readFile = promisify(fs.readFile);
 const EIP4337Module = JSON.parse(await readFile(new URL('../resources/EIP4337Module.json', import.meta.url)));
@@ -74,7 +74,7 @@ const UserService = {
     let user = await models.User.findOne({ where: { walletAddress } });
     if (!user) {
       const username = hri.random();
-      user = await models.User.create({ walletAddress, username });
+      user = await models.User.create({ walletAddress: walletAddress.toLowerCase(), username });
     }
     return user;
   },
@@ -121,14 +121,22 @@ const UserService = {
       order: [['username', 'ASC']]
     });
 
-    console.log("users", users);
-
     return {
       total: users.count,
       totalPages: Math.ceil(users.count / limit),
       currentPage: page,
       users: users.rows
     };
+  },
+
+  getUsersByWalletAddresses: async (walletAddresses) => {
+    const users = await models.User.findAll({
+      where: {
+          walletAddress: walletAddresses
+        }
+    });
+
+    return users;
   },
 }
 

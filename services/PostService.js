@@ -135,8 +135,8 @@ const PostService = {
 
     const query = `
       {
-        userPostEntities(where: { account: "${user.walletAddress}", content_in: [${contentHashesString}] }) {
-          content
+        userPostEntities(where: { account: "${user.walletAddress}", post_in: [${contentHashesString}] }) {
+          post
         }
       }
     `;

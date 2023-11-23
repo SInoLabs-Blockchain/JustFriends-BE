@@ -7,7 +7,7 @@ const UserController = {
       if (!walletAddress) {
         return res.status(400).json({ message: 'Wallet address is required' });
       }
-      const challenge = await UserService.createChallenge(walletAddress);
+      const challenge = await UserService.createChallenge(walletAddress.toLowerCase());
       return res.status(200).json({ challenge: challenge.challenge_text });
     } catch (error) {
       return res.status(500).json({ message: error.message });
@@ -17,9 +17,9 @@ const UserController = {
   login: async (req, res) => {
     try {
       const { walletAddress, signature } = req.body;
-      await UserService.verifySignature(walletAddress, signature);
-      const user = await UserService.findOrCreateUser(walletAddress);
-      const accessToken = UserService.generateJWT(user.userId, walletAddress);
+      await UserService.verifySignature(walletAddress.toLowerCase(), signature);
+      const user = await UserService.findOrCreateUser(walletAddress.toLowerCase());
+      const accessToken = UserService.generateJWT(user.userId, walletAddress.toLowerCase());
       return res.json({ accessToken: accessToken });
     } catch (error) {
       return res.status(error.message === 'Challenge not found.' ? 404 : 401).send(error.message);
@@ -60,6 +60,28 @@ const UserController = {
       res.status(400).json({ message: error.message });
     }
   },
+
+  getUsersByWalletAddresses: async (req, res) => {
+    try {
+      let walletAddresses = req.body.walletAddresses;
+      if (!Array.isArray(walletAddresses) || walletAddresses.length > 20) {
+        return res.status(400).json({ message: 'Invalid walletAddresses parameter' });
+      }
+      
+      const isHex = /^0x[0-9a-fA-F]+$/;
+      if (!walletAddresses.every(hash => isHex.test(hash))) {
+        return res.status(400).json({ message: 'Invalid walletAddresses parameter: all elements must be hexadecimal strings' });
+      }
+
+      walletAddresses = walletAddresses.map(hash => hash.toLowerCase());
+
+      const users = await UserService.getUsersByWalletAddresses(walletAddresses);
+      res.json(users);
+    } catch (error) {
+      res.status(400).json({ message: error.message });
+    }
+  },
+
 }
 
 export default UserController;
