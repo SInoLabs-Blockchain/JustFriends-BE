@@ -141,7 +141,7 @@ const PostService = {
       }
     `;
     const response = await client.request(query);
-    const validContentHashes = new Set(response.userPostEntities.map(entity => entity.content));
+    const validContentHashes = new Set(response.userPostEntities.map(entity => entity.post.toLowerCase().replace(/^0x/, '')));
     return posts.map(post => {
       if (post.type === 'paid' && post.userId !== user.userId && !validContentHashes.has(post.contentHash)) {
         return { ...post.dataValues, content: null };
