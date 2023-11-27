@@ -119,7 +119,6 @@ const PostService = {
         attributes: ['walletAddress', 'avatarUrl', 'coverUrl', 'username'] // replace with the actual user attributes you want
       }]
     });
-
     if (!user) {
       return posts.map(post => {
         if (post.type === 'paid') {
@@ -131,8 +130,7 @@ const PostService = {
 
     const client = new GraphQLClient(process.env.GRAPHQL_CLIENT);
     
-    const contentHashesString = contentHashes.map(hash => `"${hash}"`).join(', ');
-
+    const contentHashesString = contentHashes.map(hash => `"0x${hash}"`).join(', ');
     const query = `
       {
         userPostEntities(where: { account: "${user.walletAddress}", post_in: [${contentHashesString}] }) {
@@ -142,6 +140,7 @@ const PostService = {
     `;
     const response = await client.request(query);
     const validContentHashes = new Set(response.userPostEntities.map(entity => entity.post.toLowerCase().replace(/^0x/, '')));
+
     return posts.map(post => {
       if (post.type === 'paid' && post.userId !== user.userId && !validContentHashes.has(post.contentHash)) {
         return { ...post.dataValues, content: null };
