@@ -26,7 +26,7 @@ const PostController = {
   getPosts: async (req, res) => {
     let contentHashes = req.body.contentHashes;
 
-    if (!Array.isArray(contentHashes) || contentHashes.length > 20) {
+    if (!Array.isArray(contentHashes)) { // || contentHashes.length > 20) {
       return res.status(400).json({ message: 'Invalid contentHashes parameter' });
     }
   
